@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>
+			<%= title %>
+		</title>
+
+		<link href="bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="stylesheets/bootstrap-datetimepicker.css" />
+		<link href="stylesheets/style.css" rel="stylesheet">
+
+		<!--<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js">
+	</script>-->
+		<script src="javascripts/jquery.min.js"></script>
+		<script src="javascripts/bootstrap-datetimepicker.js"></script>
+		<script src="javascripts/bootstrap-datetimepicker.zh-CN.js"></script>
+		<script src="javascripts/bootstrap.js"></script>
+		<!-- <script type="javascript" src="/javascripts/app/server.js"></script> -->
+	</head>
+
+	<body>
+		<nav class="navbar navbar-default houtai-header">
+			<div class="navbar-header">
+				<h4>百度新闻后台管理</h4>
+			</div>
+		</nav>
+		<!-- 隐藏域  -->
+		<input type="hidden" class="form-control" id="id" readonly="readonly">
+		<!--新闻发布 左侧-->
+		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4>新闻发布</h4>
+				</div>
+
+				<div class="panel-body">
+					<!--下拉菜单-->
+					<div class="input-group">
+						<span class="input-group-addon" id="basic-addon1">栏目</span>
+						<select name="news" id="tag" class="form-control type-list">
+							<!--<option value="推荐">推荐</option>
+							<option value="本地">本地</option>
+							<option value="娱乐">娱乐</option>
+							<option value="社会">社会</option>
+							<option value="军事">军事</option>
+							<option value="女人">女人</option>-->
+						</select>
+					</div>
+				</div>
+				<!---->
+				<div class="input-group panel-body">
+					<span class="input-group-addon">标题</span>
+					<input type="text" class="form-control" id="title" placeholder="请输入标题" aria-describedby="basic-addon1">
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">作者</span>
+					<input type="text" class="form-control" id="aur" placeholder="请输入作者" aria-describedby="basic-addon1">
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">来源</span>
+					<input type="text" class="form-control" id="source" placeholder="请输入来源" aria-describedby="basic-addon1">
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">日期</span>
+					<input type='text' name="time" id='time' data-date-format="yyyy年MM月dd日 HH:ii" placeholder="请选择时间.." class="form-control datetimepicker" />
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">图片</span>
+					<input type="text" class="form-control" id="src" placeholder="请输入图片地址" aria-describedby="basic-addon1">
+				</div>
+				<!--<input class="form-control input-lg " type="text" placeholder=".input-lg">-->
+				<textarea class="form-control neirong-text panel-body" id="matter" placeholder="新闻内容……"></textarea>
+
+				<button type="button" id="btn" class="btn btn-success btn-block left-btn">提交</button>
+			</div>
+		</div>
+		<!--新闻列表  右侧-->
+		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4>新闻列表</h4>
+				</div>
+				<div class="panel-body" id="table">
+					<table class="table table-hover table-striped">
+						<thead class="text-center">
+							<tr>
+								<th>ID</th>
+								<th>标题</th>
+								<th>时间</th>
+								<th>类型</th>
+								<th>操作</th>
+							</tr>
+
+						</thead>
+						<tbody id="list">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		</div>
+		<!--模态框-->
+		<div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">欢迎光临</h4>
+					</div>
+					<div class="modal-body">
+						<p>删除成功</p>
+					</div>
+					<div class="modal-footer">
+
+						<button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+					</div>
+				</div>
+
+			</div>
+
+	</body>
+
+	<script>
+		$(document).ready(function() {
+		
+			init();
+			//type的初始化
+			function init() {
+				$.ajax({
+					url: '/server/getTypeList',
+					type: 'get',
+					success: function(data) {
+
+						data.forEach(function(ele, index) {
+							$(`<option value=${ele.type_id} > ${ele.type_name}</option>`).appendTo($('.type-list'));
+
+						})
+					}
+				})
+			};
+			// 	//时间
+			$('.datetimepicker').datetimepicker({
+				language: 'zh-CN',
+				weekStart: 1,
+				todayBtn: 1,
+				autoclose: 1,
+				todayHighlight: 1,
+				startView: 2,
+				forceParse: 0,
+				showMeridian: 1
+			})
+
+			refresh()
+			//刷新数据
+			function refresh() {
+				$.ajax({
+					url: '/server/getnews',
+					type: 'post',
+					success: function(data) {
+						$('#list').html('')
+						data.forEach(function(ele, index) {
+							$(`<tr>
+							               <th>${ele.id}</th>	
+							                <td>${ele.title}</td>	
+							                 <td>${ele.data}</td>	
+							                 <td>${ele.type_name}</td>
+							                                <td><button type="button" class="btn changebtn btn-warning">更改</button></td>
+							                 <td><button type="button" class="btn delbtn btn-danger">删除</button></td>
+							              </tr>`).prependTo($('#list'));
+
+						})
+					}
+				})
+			};
+
+			//画面添加和更新数据到数据库
+			$('#btn').click(function(e) {
+				
+					$.ajax({
+						url: '/server/SubmitRouter',
+						type: 'post',
+						data: {
+							title: $('#title').val(),
+							author: $('#aur').val(),
+							matter: $('#matter').val(),
+							src: $('#src').val(),
+							time: $('#time').val(),
+							source: $('#source').val(),
+							tag: $('#tag').val(),
+							id: $('#id').val()
+						},
+						// 成功添加的场合
+						success: function(data) {
+							$('#id').val('');
+							alert(data);
+							console.log(data);
+							refresh();
+						},
+						// 添加失败的场合
+						error: function(err) {
+							console.log(err);
+						}
+					});
+				
+			});
+			//点击更改取得数据
+			$('#list').on('click', '.changebtn', function(e) {
+				// 点击更改按钮的时候取得这条数据的ID
+				var id = $(this).parent().parent().find("th:first").text();
+				
+				// 将取得的数据画到页面
+				$.ajax({
+					url: '/server/getnewsbyid',
+					type: 'post',
+					data: {
+						id: id
+					},
+					success: function(data) {
+						
+						data.forEach(function(ele, index) {
+							$('#id').val(ele.id);
+							$('#title').val(ele.title);
+							$('#time').val(ele.data);
+							$('#aur').val(ele.aur);
+							$('#source').val(ele.source);
+							$('#tag').val(ele.type_id);
+							
+						})
+					},
+					error: function(err) {
+						console.log(err)
+					}
+				})
+			})
+			//changebtn end
+			//删除列表
+			$('#list').on('click', '.delbtn', function() {
+
+				var id = $(this).parent().parent().children(0).html();
+				$.ajax({
+					url: '/server/DelRoute',
+					type: 'post',
+					data: {
+						id: id
+					},
+					success: function(data) {
+						//						alert(data.message);
+						$('#myModal').modal('show');
+						refresh();
+
+					},
+					err: function(err) {
+						console.log(err);
+					}
+				})
+			});
+
+		});
+	</script>
+
+</html>

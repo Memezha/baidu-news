@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>
+			<%= title %>
+		</title>
+
+		<link href="bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="stylesheets/bootstrap-datetimepicker.css" />
+		<link href="stylesheets/style.css" rel="stylesheet">
+		
+	</head>
+
+	<body>
+		<nav class="navbar navbar-default houtai-header">
+			<div class="navbar-header">
+				<h4>百度新闻后台管理</h4>
+			</div>
+		</nav>
+		<!--新闻发布 左侧-->
+		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4>新闻发布</h4>
+				</div>
+
+				<div class="panel-body">
+					<!--下拉菜单-->
+					<div class="input-group">
+						<span class="input-group-addon" id="basic-addon1">栏目</span>
+						<select name="news" id="tag" class="form-control">
+							<option value="推荐">推荐</option>
+							<option value="本地">本地</option>
+							<option value="娱乐">娱乐</option>
+							<option value="社会">社会</option>
+							<option value="军事">军事</option>
+							<option value="女人">女人</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="input-group panel-body">
+					<span class="input-group-addon">标题</span>
+					<input type="text" class="form-control" id="title" placeholder="请输入标题" aria-describedby="basic-addon1">
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">作者</span>
+					<input type="text" class="form-control" id="aur" placeholder="请输入作者" aria-describedby="basic-addon1">
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">来源</span>
+					<input type="text" class="form-control" id="source" placeholder="请输入来源" aria-describedby="basic-addon1">
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">日期</span>
+					<input type='date' name="time" id='time' data-date-format="yyyy年MM月dd日 HH:ii" placeholder="请选择时间.." class="form-control" />
+				</div>
+				<div class="input-group panel-body">
+					<span class="input-group-addon">图片</span>
+					<input type="text" class="form-control" id="src" placeholder="请输入图片地址" aria-describedby="basic-addon1">
+				</div>
+				<!--<input class="form-control input-lg " type="text" placeholder=".input-lg">-->
+				<textarea class="form-control neirong-text panel-body" id="matter" placeholder="新闻内容……"></textarea>
+
+				<button type="button" id="btn" class="btn btn-success btn-block left-btn">提交</button>
+			</div>
+		</div>
+		<!--新闻列表  右侧-->
+		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4>新闻列表</h4>
+				</div>
+				<div class="panel-body" id="table">
+					<table class="table table-hover table-striped">
+						<thead class="text-center">
+							<tr>
+								<th>ID</th>
+								<th>标题</th>
+								<th>时间</th>
+								<th>类型</th>
+								<th>操作</th>
+							</tr>
+
+						</thead>
+						<tbody id="list">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		</div>
+		<!--模态框-->
+		<div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">欢迎光临</h4>
+					</div>
+					<div class="modal-body">
+						<p>删除成功</p>
+					</div>
+					<div class="modal-footer">
+
+						<button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+					</div>
+				</div>
+				
+			</div>
+			
+		
+	</body> --> 
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<!-- <script type="javascript" src="javascripts/jquery.min.js"></script> -->
+	<script type="javascript" src="javascripts/bootstrap-datetimepicker.js"></script>
+	<script type="javascript" src="javascripts/bootstrap-datetimepicker.zh-CN.js"></script>
+	<script type="javascript" src="javascripts/bootstrap.js"></script>
+ 	<!-- <script type="javascript" src="/javascripts/app/server1.js"></script> -->
+
+
+	<script>
+	
+		
+ $(document).ready(function() {
+
+	
+
+
+// 	//时间
+// $('#time').datetimepicker({
+// 	language: 'zh-CN',
+// 	weekStart: 1,
+// 	todayBtn: 1,
+// 	autoclose: 1,
+// 	todayHighlight: 1,
+// 	startView: 2,
+// 	forceParse: 0,
+// 	showMeridian: 1
+// })
+
+refresh()
+//刷新数据
+function refresh() {
+	$.ajax({
+		url: '/server/getnews',
+		type: 'post',
+		success: function(data) {
+			$('#list').html('')
+			data.forEach(function(ele, index) {
+				$(`<tr>
+               <th>${ele.id}</th>	
+                <td>${ele.title}</td>	
+                 <td>${ele.data}</td>	
+                 <td>${ele.type}</td>
+                                <td><button type="button" class="btn changebtn btn-warning">更改</button></td>
+                 <td><button type="button" class="btn delbtn btn-danger">删除</button></td>
+              </tr>`).prependTo($('#list'));
+
+			})
+		}
+	})
+};
+
+//插入一条数据到数据库
+$('#btn').click(function(e) {
+	// 	e.preventDefault();
+	
+	$.ajax({
+		url: '/server/SubmitRouter',
+		type: 'post',
+		data: {
+			title: $('#title').val(),
+			author: $('#aur').val(),
+			matter: $('#matter').val(),
+			src: $('#src').val(),
+			time: $('#time').val(),
+			source: $('#source').val(),
+			tag: $('#tag').val()
+		},
+		success: function(data) {
+
+			refresh()
+		},
+		error: function(err) {
+			console.log(err);
+		}
+	});
+})
+//删除列表
+
+$('#list').on('click', '.delbtn', function() {
+	
+	var id = $(this).parent().parent().children(0).html();
+	$.ajax({
+		url: '/server/DelRoute',
+		type: 'post',
+		data: {
+			id: id
+		},
+		success: function(data) {
+						alert(data.message);
+              
+			refresh();
+            
+		},
+		err: function(err) {
+			console.log(err);
+		}
+	})
+});
+ });
+	
+
+
+
+	</script>
+
+</html>
